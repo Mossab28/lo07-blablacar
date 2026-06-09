@@ -1,0 +1,16 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Éditeurs
+.vscode/
+.idea/
+*.swp
+
+# Logs / temporaires
+*.log
+/tmp/
+
+# Dépendances éventuelles
+/vendor/
+node_modules/

@@ -1,10 +1,11 @@
-<h2 class="section-titre">Liste de mes réservations</h2>
-<?php if (!empty($flash)): ?><div class="alert ok"><?= htmlspecialchars($flash) ?></div><?php endif; ?>
+<h2 class="text-danger mb-3">Liste de mes réservations</h2>
+<?php if (!empty($flash)): ?><div class="alert alert-success"><?= htmlspecialchars($flash) ?></div><?php endif; ?>
 <?php if (empty($reservations)): ?>
-    <div class="alert info">Vous n'avez aucune réservation.</div>
+    <div class="alert alert-info">Vous n'avez aucune réservation.</div>
 <?php else: ?>
-<table class="data">
-    <thead>
+<div class="table-responsive">
+<table class="table table-striped table-hover table-bordered align-middle bg-white">
+    <thead class="table-dark">
         <tr><th>Date</th><th>Heure</th><th>Départ</th><th>Destination</th>
             <th>Conducteur</th><th>Véhicule</th><th>Immatriculation</th>
             <th>Prix (€)</th><th>Statut</th></tr>
@@ -20,9 +21,10 @@
                 <td><?= htmlspecialchars($r['vehicule']) ?></td>
                 <td><?= htmlspecialchars($r['immatriculation']) ?></td>
                 <td><?= number_format((float) $r['prix'], 2, '.', ' ') ?></td>
-                <td><span class="badge <?= $r['statut'] ?>"><?= htmlspecialchars($r['statut']) ?></span></td>
+                <td><span class="badge <?= $r['statut'] === 'actif' ? 'bg-success' : 'bg-secondary' ?>"><?= htmlspecialchars($r['statut']) ?></span></td>
             </tr>
         <?php endforeach; ?>
     </tbody>
 </table>
+</div>
 <?php endif; ?>

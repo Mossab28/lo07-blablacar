@@ -1,4 +1,4 @@
-<h2 class="section-titre">Innovation MVC — Améliorations de l'architecture</h2>
+<h2 class="text-danger mb-3">Innovation MVC — Améliorations de l'architecture</h2>
 
 <p>
     Par rapport au MVC « de base » étudié en cours, notre implémentation
@@ -6,42 +6,35 @@
     responsabilités et la maintenabilité.
 </p>
 
-<div class="card" style="max-width:none">
-    <h3>1. Front Controller unique + routeur déclaratif</h3>
-    <p>
-        Toutes les requêtes passent par <code>index.php</code> qui délègue à un
-        <code>Router</code> doté d'une <strong>table de routes déclarative</strong>
-        (action → [Contrôleur, méthode]). Ajouter une fonctionnalité = ajouter
-        une ligne, sans toucher à la logique d'aiguillage.
-    </p>
-
-    <h3>2. Modèle de base mutualisé (couche d'accès PDO)</h3>
-    <p>
-        La classe abstraite <code>Model</code> centralise la connexion PDO et les
-        helpers (<code>fetchAll</code>, <code>fetchOne</code>, <code>execute</code>,
-        <code>nextId</code>). Les modèles concrets ne contiennent que du SQL métier,
-        et <strong>seule cette couche parle à la base</strong> — jamais les vues.
-    </p>
-
-    <h3>3. Contrôleur de base avec gardes de rôle</h3>
-    <p>
-        <code>Controller</code> fournit <code>exigerRole()</code>, un point unique
-        de contrôle d'accès basé sur la session, ainsi qu'un système de
-        <strong>messages flash</strong> et un <code>render()</code> qui compose
-        systématiquement header + <code>fragmentMenu</code> + footer.
-    </p>
-
-    <h3>4. Requêtes 100 % préparées (sécurité)</h3>
-    <p>
-        Toutes les entrées passent par des <strong>requêtes préparées</strong>
-        (anti-injection SQL) et les sorties sont échappées via
-        <code>htmlspecialchars</code> (anti-XSS).
-    </p>
-
-    <h3>5. Vues sans logique métier</h3>
-    <p>
-        Les vues ne reçoivent que des données déjà préparées par le contrôleur ;
-        elles ne font aucune requête ni calcul métier, ce qui rend le code
-        testable et réutilisable.
-    </p>
+<div class="accordion" id="innovMvc">
+    <div class="accordion-item">
+        <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#i1">1. Front Controller unique + routeur déclaratif</button></h2>
+        <div id="i1" class="accordion-collapse collapse show" data-bs-parent="#innovMvc"><div class="accordion-body">
+            Toutes les requêtes passent par <code>index.php</code> qui délègue à un <code>Router</code> doté d'une table de routes déclarative (action → [Contrôleur, méthode]). Ajouter une fonctionnalité = ajouter une ligne.
+        </div></div>
+    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#i2">2. Modèle de base mutualisé (couche PDO)</button></h2>
+        <div id="i2" class="accordion-collapse collapse" data-bs-parent="#innovMvc"><div class="accordion-body">
+            La classe abstraite <code>Model</code> centralise la connexion PDO et les helpers. Seule cette couche parle à la base — jamais les vues.
+        </div></div>
+    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#i3">3. Contrôleur de base avec gardes de rôle</button></h2>
+        <div id="i3" class="accordion-collapse collapse" data-bs-parent="#innovMvc"><div class="accordion-body">
+            <code>Controller</code> fournit <code>exigerRole()</code>, un point unique de contrôle d'accès, un système de messages flash et un <code>render()</code> qui compose header + fragmentMenu + footer.
+        </div></div>
+    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#i4">4. Requêtes 100 % préparées + sortie échappée</button></h2>
+        <div id="i4" class="accordion-collapse collapse" data-bs-parent="#innovMvc"><div class="accordion-body">
+            Toutes les entrées passent par des requêtes préparées (anti-injection SQL) et les sorties sont échappées via <code>htmlspecialchars</code> (anti-XSS).
+        </div></div>
+    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#i5">5. Vues sans logique métier</button></h2>
+        <div id="i5" class="accordion-collapse collapse" data-bs-parent="#innovMvc"><div class="accordion-body">
+            Les vues ne reçoivent que des données déjà préparées par le contrôleur ; aucune requête ni calcul métier — code testable et réutilisable.
+        </div></div>
+    </div>
 </div>

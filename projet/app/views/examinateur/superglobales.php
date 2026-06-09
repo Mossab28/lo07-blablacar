@@ -1,7 +1,7 @@
-<h2 class="section-titre">SuperGlobales (Cookies et Sessions)</h2>
+<h2 class="text-danger mb-3">SuperGlobales (Cookies et Sessions)</h2>
 
-<h3>$_COOKIE</h3>
-<pre class="dump"><?= htmlspecialchars(print_r($cookies, true)) ?></pre>
+<h5>$_COOKIE</h5>
+<pre class="bg-dark text-light p-3 rounded"><?= htmlspecialchars(print_r($cookies, true)) ?></pre>
 
-<h3>$_SESSION</h3>
-<pre class="dump"><?= htmlspecialchars(print_r($sessions, true)) ?></pre>
+<h5 class="mt-4">$_SESSION</h5>
+<pre class="bg-dark text-light p-3 rounded"><?= htmlspecialchars(print_r($sessions, true)) ?></pre>

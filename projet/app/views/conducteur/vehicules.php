@@ -1,9 +1,10 @@
-<h2 class="section-titre">Liste des véhicules du conducteur <?= htmlspecialchars($conducteur['prenom'] . ' ' . $conducteur['nom']) ?></h2>
+<h2 class="text-danger mb-3">Liste des véhicules du conducteur <?= htmlspecialchars($conducteur['prenom'] . ' ' . $conducteur['nom']) ?></h2>
 <?php if (empty($vehicules)): ?>
-    <div class="alert info">Vous n'avez aucun véhicule enregistré.</div>
+    <div class="alert alert-info">Vous n'avez aucun véhicule enregistré.</div>
 <?php else: ?>
-<table class="data">
-    <thead><tr><th>Marque</th><th>Modèle</th><th>Année</th><th>Immatriculation</th></tr></thead>
+<div class="table-responsive">
+<table class="table table-striped table-hover table-bordered align-middle bg-white">
+    <thead class="table-dark"><tr><th>Marque</th><th>Modèle</th><th>Année</th><th>Immatriculation</th></tr></thead>
     <tbody>
         <?php foreach ($vehicules as $v): ?>
             <tr>
@@ -15,4 +16,5 @@
         <?php endforeach; ?>
     </tbody>
 </table>
+</div>
 <?php endif; ?>

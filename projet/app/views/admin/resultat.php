@@ -1,5 +1,5 @@
-<h2 class="section-titre">Résultat de l'opération</h2>
-<div class="alert <?= $succes ? 'ok' : 'ko' ?>">
+<h2 class="text-danger mb-3">Résultat de l'opération</h2>
+<div class="alert <?= $succes ? 'alert-success' : 'alert-danger' ?>">
     <?= htmlspecialchars($message) ?>
 </div>
-<a class="btn ghost" href="<?= BASE_URL ?>index.php?action=<?= htmlspecialchars($retour) ?>">Continuer</a>
+<a class="btn btn-outline-primary" href="<?= BASE_URL ?>index.php?action=<?= htmlspecialchars($retour) ?>">Continuer</a>

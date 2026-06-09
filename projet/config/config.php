@@ -6,7 +6,13 @@ define('NOMS_ETUDIANTS', ETUDIANT_1 . ' et ' . ETUDIANT_2);
 
 $surDevIsi = isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'dev-isi.utt.fr') !== false;
 
-if ($surDevIsi) {
+if (getenv('DB_HOST')) {
+    define('DB_HOST', getenv('DB_HOST'));
+    define('DB_PORT', getenv('DB_PORT') ?: '3306');
+    define('DB_NAME', getenv('DB_NAME') ?: 'blablacar2026');
+    define('DB_USER', getenv('DB_USER') ?: 'root');
+    define('DB_PASS', getenv('DB_PASS') ?: '');
+} elseif ($surDevIsi) {
     define('DB_HOST', 'localhost');
     define('DB_PORT', '3306');
 

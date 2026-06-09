@@ -1,0 +1,161 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage{titlesec}
+
+\definecolor{bleu}{HTML}{1d6ff2}
+\definecolor{rouge}{HTML}{e03131}
+\definecolor{gris}{HTML}{f0f0f0}
+
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{gris},
+  frame=single,
+  breaklines=true,
+  language=PHP,
+  showstringspaces=false
+}
+
+\titleformat{\section}{\Large\bfseries\color{bleu}}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries\color{rouge}}{\thesubsection}{1em}{}
+
+\newcommand{\question}[1]{\vspace{0.4em}\noindent\textbf{\color{rouge}Q : #1}\par}
+\newcommand{\reponse}[1]{\noindent\textbf{R :} #1\par\vspace{0.4em}}
+
+\title{\textbf{Soutenance LO07 -- BlaBlaCar 2026}\\[0.3em]\large Partie de Pierre : la couche \textbf{Vue} et le visuel}
+\author{Pierre Bheidi \quad (binôme : Moss'Ab Mirande-Ney)}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Ce que je présente}
+Je suis responsable de la \textbf{couche Vue} de l'architecture MVC : tout l'affichage,
+la barre de menu dynamique, les formulaires, les tableaux, et l'intégration
+\textbf{Bootstrap 5}. Mon rôle est de transformer les données préparées par les
+contrôleurs en pages HTML lisibles, sans jamais y mettre de logique métier.
+
+\section{Texte à dire pendant la démo}
+
+\subsection{1. Rôle de la Vue dans le MVC}
+« Dans le pattern MVC, la Vue ne s'occupe que de l'\textbf{affichage}. Elle ne fait
+aucune requête à la base et aucun calcul métier : elle reçoit des données déjà
+prêtes du contrôleur et les met en forme. Cette séparation rend le code clair et
+réutilisable. »
+
+\subsection{2. Organisation des fichiers de vue}
+« Les vues sont rangées par rôle dans \texttt{app/views/} : \texttt{admin/},
+\texttt{conducteur/}, \texttt{passager/}, \texttt{examinateur/},
+\texttt{innovations/}, plus un dossier \texttt{layout/} commun qui contient
+l'en-tête, le pied de page et la barre de menu. »
+
+\subsection{3. Le gabarit commun et le rendu}
+« Chaque page est composée automatiquement : le contrôleur appelle une méthode
+\texttt{render()} qui assemble \textbf{header + fragmentMenu + la vue + footer}.
+On n'écrit donc jamais deux fois le \texttt{<head>} ou la barre de menu. »
+\begin{lstlisting}
+echo '<main class="container flex-grow-1 pb-4">';
+require $contenuVue;       // la vue de la page
+echo '</main>';
+\end{lstlisting}
+
+\subsection{4. La barre de menu dynamique (fragmentMenu)}
+« C'est la pièce centrale de la Vue. Elle lit l'utilisateur connecté en session et
+affiche \textbf{un seul} menu métier selon son rôle (Administrateur, Conducteur ou
+Passager), plus les menus toujours visibles : Innovations, Examinateur, Se
+connecter. Si personne n'est connecté, aucun menu métier n'apparaît. »
+\begin{lstlisting}
+if ($courant !== null && $courant['role'] === 'administrateur'): ...
+elseif ($courant['role'] === 'conducteur'): ...
+elseif ($courant['role'] === 'passager'): ...
+\end{lstlisting}
+« On affiche aussi en haut à gauche les noms du binôme, le nom de l'utilisateur
+connecté et son solde -- comme demandé dans le sujet. »
+
+\subsection{5. Bootstrap 5, zéro CSS maison}
+« Toute la mise en forme repose sur \textbf{Bootstrap 5} chargé par CDN : pas de
+fichier CSS personnel à maintenir. J'utilise les composants : \texttt{navbar} pour
+la barre, \texttt{dropdown} pour les menus déroulants, \texttt{card} pour les
+formulaires et les statistiques, \texttt{table table-striped} pour les listes,
+\texttt{badge} pour les statuts, \texttt{alert} pour les messages. »
+
+\subsection{6. Formulaires et tableaux}
+« Les formulaires (connexion, ajout d'un conducteur, création d'un trajet) utilisent
+\texttt{form-control} et \texttt{form-select}. Les listes sont des tableaux à
+en-tête sombre. Les statuts de trajet sont des badges verts (actif) ou gris
+(passif). »
+
+\subsection{7. Sécurité côté Vue}
+« Toutes les données affichées sont échappées avec \texttt{htmlspecialchars} pour
+éviter les failles XSS : si un nom contient du code HTML, il s'affiche en texte et
+ne s'exécute pas. »
+
+\subsection{8. Messages à l'utilisateur (flash)}
+« Après une action (ajout réussi, réservation confirmée), un message de
+confirmation s'affiche en vert ; en cas d'erreur, en rouge. »
+
+\section{Ce que je montre à l'écran}
+\begin{enumerate}[leftmargin=*]
+  \item La page d'accueil et la barre de menu sans connexion (seuls 3 menus visibles).
+  \item Connexion : le menu change selon le rôle (effet « dynamique »).
+  \item Une liste (utilisateurs ou véhicules) : tableau Bootstrap, propriétaire
+        reconstruit prénom + nom (pas de clé primaire affichée).
+  \item Un formulaire d'ajout et le message de confirmation.
+  \item Le responsive : réduire la fenêtre, la barre se replie (menu hamburger).
+\end{enumerate}
+
+\section{Questions potentielles du jury (et réponses)}
+
+\question{Pourquoi séparer la Vue du reste du code ?}
+\reponse{Pour respecter le principe de séparation des responsabilités : on peut
+changer l'affichage (passer à Bootstrap par exemple) sans toucher à la logique, et
+réutiliser un même contrôleur avec plusieurs vues.}
+
+\question{Comment la barre de menu sait quel menu afficher ?}
+\reponse{Elle lit \texttt{\$\_SESSION['login\_id']}, récupère l'utilisateur via le
+modèle, puis teste son champ \texttt{role}. Un seul des trois menus métier est
+rendu selon ce rôle.}
+
+\question{Que se passe-t-il si aucun utilisateur n'est connecté ?}
+\reponse{\texttt{login\_id} vaut -1, donc aucun menu métier n'est affiché : seuls
+Innovations, Examinateur et Se connecter restent visibles, comme l'exige le sujet.}
+
+\question{À quoi sert \texttt{htmlspecialchars} ?}
+\reponse{À échapper les caractères spéciaux HTML en sortie. C'est une protection
+contre les attaques XSS : du code injecté dans un nom s'affiche comme du texte au
+lieu d'être exécuté par le navigateur.}
+
+\question{Pourquoi Bootstrap plutôt qu'un CSS écrit à la main ?}
+\reponse{Bootstrap fournit des composants testés et un rendu responsive immédiat,
+ce qui nous a permis de nous concentrer sur la logique. La structure HTML reste la
+nôtre ; on maîtrise les classes utilisées.}
+
+\question{Comment une vue reçoit-elle ses données ?}
+\reponse{Le contrôleur passe un tableau associatif à \texttt{render()}, qui fait un
+\texttt{extract()} : chaque clé devient une variable disponible dans la vue (par
+exemple \texttt{\$utilisateurs}).}
+
+\question{Différence entre \texttt{<?= } et \texttt{<?php echo} ?}
+\reponse{\texttt{<?= \$x ?>} est un raccourci d'\texttt{echo}. On l'utilise pour
+afficher une valeur de façon concise dans le HTML.}
+
+\question{Comment gérez-vous l'affichage sur mobile ?}
+\reponse{Grâce aux classes responsive de Bootstrap : \texttt{navbar-toggler} replie
+le menu en « hamburger », et \texttt{table-responsive} rend les tableaux
+défilables horizontalement.}
+
+\question{Où est gérée l'ouverture des menus déroulants ?}
+\reponse{Par le JavaScript de Bootstrap (le bundle chargé en bas de page). Nous,
+on ne fait qu'ajouter les attributs \texttt{data-bs-toggle="dropdown"}.}
+
+\question{Y a-t-il de la logique métier dans les vues ?}
+\reponse{Non. Les vues ne contiennent que des boucles d'affichage et des conditions
+d'affichage. Tout le métier (requêtes, calculs, paiements) est dans les
+contrôleurs et les modèles.}
+
+\end{document}

@@ -24,9 +24,17 @@ require_once APP_PATH . '/router/router.php';
 
 $action = $_GET['action'] ?? '';
 
-// Démarrage « à froid » : pas d'action -> on s'assure que personne n'est connecté.
-if ($action === '') {
+// Démarrage « à froid » de l'application : au tout premier accès d'une session
+// (aucune navigation encore effectuée), on s'assure que personne n'est connecté.
+// On utilise un drapeau de session pour NE PAS déconnecter l'utilisateur à
+// chaque retour sur la page d'accueil ou rechargement de la racine.
+if (!isset($_SESSION['app_demarree'])) {
+    $_SESSION['app_demarree'] = true;
     $_SESSION['login_id'] = -1;
+}
+
+// Pas d'action demandée -> page d'accueil (sans toucher à la session).
+if ($action === '') {
     $action = 'accueil';
 }
 

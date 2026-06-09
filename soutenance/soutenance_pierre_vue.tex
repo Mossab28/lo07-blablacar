@@ -7,155 +7,236 @@
 \usepackage{listings}
 \usepackage{enumitem}
 \usepackage{titlesec}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue}
 
 \definecolor{bleu}{HTML}{1d6ff2}
 \definecolor{rouge}{HTML}{e03131}
 \definecolor{gris}{HTML}{f0f0f0}
 
-\lstset{
-  basicstyle=\ttfamily\footnotesize,
-  backgroundcolor=\color{gris},
-  frame=single,
-  breaklines=true,
-  language=PHP,
-  showstringspaces=false
-}
+\lstset{basicstyle=\ttfamily\footnotesize, backgroundcolor=\color{gris}, frame=single, breaklines=true, language=PHP, showstringspaces=false}
 
 \titleformat{\section}{\Large\bfseries\color{bleu}}{\thesection}{1em}{}
 \titleformat{\subsection}{\large\bfseries\color{rouge}}{\thesubsection}{1em}{}
 
 \newcommand{\question}[1]{\vspace{0.4em}\noindent\textbf{\color{rouge}Q : #1}\par}
 \newcommand{\reponse}[1]{\noindent\textbf{R :} #1\par\vspace{0.4em}}
+\newcommand{\motcle}[1]{\noindent\textbf{\color{bleu}#1} :\ }
 
-\title{\textbf{Soutenance LO07 -- BlaBlaCar 2026}\\[0.3em]\large Partie de Pierre : la couche \textbf{Vue} et le visuel}
+\title{\textbf{Guide complet de soutenance -- LO07 BlaBlaCar 2026}\\[0.3em]\large Partie de Pierre : la couche \textbf{Vue} et le visuel (Bootstrap)}
 \author{Pierre Bheidi \quad (binôme : Moss'Ab Mirande-Ney)}
 \date{}
 
 \begin{document}
 \maketitle
+\tableofcontents
+\vspace{1em}
+\hrule
+\vspace{1em}
 
-\section{Ce que je présente}
-Je suis responsable de la \textbf{couche Vue} de l'architecture MVC : tout l'affichage,
-la barre de menu dynamique, les formulaires, les tableaux, et l'intégration
-\textbf{Bootstrap 5}. Mon rôle est de transformer les données préparées par les
-contrôleurs en pages HTML lisibles, sans jamais y mettre de logique métier.
+\noindent\textit{Ce document est un guide complet : même sans avoir codé cette
+partie, tu pourras tout présenter et répondre aux questions du jury. Lis-le une
+fois en entier, puis relis le « script de démo » et les « questions/réponses ».}
 
-\section{Texte à dire pendant la démo}
+\section{Contexte du projet (à connaître absolument)}
 
-\subsection{1. Rôle de la Vue dans le MVC}
-« Dans le pattern MVC, la Vue ne s'occupe que de l'\textbf{affichage}. Elle ne fait
-aucune requête à la base et aucun calcul métier : elle reçoit des données déjà
-prêtes du contrôleur et les met en forme. Cette séparation rend le code clair et
-réutilisable. »
+\motcle{Le sujet} BlaBlaCar est une application web de \textbf{covoiturage}. Les
+utilisateurs se connectent et, selon leur \textbf{rôle}, accèdent à des
+fonctionnalités différentes :
+\begin{itemize}[noitemsep]
+  \item \textbf{Administrateur} : gère les utilisateurs, les véhicules, les villes.
+  \item \textbf{Conducteur} : gère ses véhicules et ses trajets (création, clôture).
+  \item \textbf{Passager} : réserve des trajets et consulte ses réservations.
+\end{itemize}
 
-\subsection{2. Organisation des fichiers de vue}
-« Les vues sont rangées par rôle dans \texttt{app/views/} : \texttt{admin/},
-\texttt{conducteur/}, \texttt{passager/}, \texttt{examinateur/},
-\texttt{innovations/}, plus un dossier \texttt{layout/} commun qui contient
-l'en-tête, le pied de page et la barre de menu. »
+\motcle{La base de données} 5 tables : \texttt{utilisateur} (id, nom, prenom,
+role, login, password, solde), \texttt{vehicule}, \texttt{ville},
+\texttt{trajet} (départ, arrivée, conducteur, véhicule, prix, date, statut
+actif/passif), \texttt{reservation} (lie un trajet et un passager).
 
-\subsection{3. Le gabarit commun et le rendu}
-« Chaque page est composée automatiquement : le contrôleur appelle une méthode
-\texttt{render()} qui assemble \textbf{header + fragmentMenu + la vue + footer}.
-On n'écrit donc jamais deux fois le \texttt{<head>} ou la barre de menu. »
-\begin{lstlisting}
-echo '<main class="container flex-grow-1 pb-4">';
-require $contenuVue;       // la vue de la page
-echo '</main>';
-\end{lstlisting}
+\motcle{L'architecture} Le projet suit le patron \textbf{MVC}
+(Modèle-Vue-Contrôleur) : on sépare les données (Modèle), l'affichage (Vue) et la
+logique (Contrôleur). \textbf{Ma partie, c'est la Vue.}
 
-\subsection{4. La barre de menu dynamique (fragmentMenu)}
-« C'est la pièce centrale de la Vue. Elle lit l'utilisateur connecté en session et
-affiche \textbf{un seul} menu métier selon son rôle (Administrateur, Conducteur ou
-Passager), plus les menus toujours visibles : Innovations, Examinateur, Se
-connecter. Si personne n'est connecté, aucun menu métier n'apparaît. »
+\section{Les concepts que je dois savoir expliquer}
+
+\motcle{MVC} Trois couches. Le \textbf{Modèle} parle à la base. Le
+\textbf{Contrôleur} reçoit la requête, appelle le modèle, prépare les données. La
+\textbf{Vue} (ma partie) affiche ces données en HTML. Avantage : on peut changer
+l'affichage sans toucher à la logique.
+
+\motcle{Une « vue »} Un fichier PHP qui contient surtout du HTML, avec quelques
+petites boucles pour afficher une liste. Une vue \textbf{ne fait jamais de requête
+SQL} ni de calcul métier : elle reçoit des données déjà prêtes.
+
+\motcle{Bootstrap} Une bibliothèque CSS/JS gratuite qui fournit des composants
+déjà stylés (barre de navigation, cartes, tableaux, boutons). On l'inclut par un
+lien CDN ; on applique ensuite des \textbf{classes} sur nos balises HTML
+(ex.~\texttt{class="btn btn-primary"}). On a pris la version \textbf{5.3}, la même
+que dans les TD.
+
+\motcle{Session} Une mémoire côté serveur qui retient qui est connecté entre les
+pages (variable \texttt{\$\_SESSION['login\_id']}). La Vue la lit pour savoir quel
+menu afficher.
+
+\motcle{Échappement (htmlspecialchars)} Transformer les caractères spéciaux HTML
+(\texttt{<}, \texttt{>}) en texte inoffensif avant l'affichage, pour empêcher
+l'injection de code (faille \textbf{XSS}).
+
+\section{Ma partie en détail : les fichiers de la Vue}
+
+Tous mes fichiers sont dans \texttt{projet/app/views/}. Ils sont rangés par rôle :
+\texttt{admin/}, \texttt{conducteur/}, \texttt{passager/}, \texttt{examinateur/},
+\texttt{innovations/}, \texttt{auth/}, \texttt{home/}, et un dossier
+\texttt{layout/} commun.
+
+\subsection{Le gabarit commun (layout/)}
+Trois fragments composent l'ossature de \textbf{chaque} page :
+\begin{itemize}[noitemsep]
+  \item \texttt{header.php} : le début du HTML (\texttt{<head>}), le chargement de
+        Bootstrap (CSS + JS par CDN) et un petit bloc de style (le conteneur a une
+        marge haute pour passer sous la barre fixe).
+  \item \texttt{fragmentMenu.php} : la \textbf{barre de navigation} et le bandeau
+        bleu « Projet BlaBlaCar 2026 » (le \emph{jumbotron}).
+  \item \texttt{footer.php} : le pied de page (noms, UTT, date) et la fermeture du HTML.
+\end{itemize}
+C'est le contrôleur qui les assemble via une méthode \texttt{render()} : on n'écrit
+donc jamais deux fois l'en-tête.
+
+\subsection{La barre de menu dynamique (le point fort)}
+C'est la pièce centrale de ma partie. Elle :
+\begin{enumerate}[noitemsep]
+  \item lit l'utilisateur connecté en session ;
+  \item affiche en haut à gauche les \textbf{noms du binôme}, et à droite le
+        \textbf{nom de l'utilisateur connecté} avec son \textbf{solde} ;
+  \item affiche \textbf{un seul} menu métier selon le rôle (Administrateur,
+        Conducteur \emph{ou} Passager) ;
+  \item affiche toujours les menus Innovations, Examinateur et Se connecter.
+\end{enumerate}
 \begin{lstlisting}
 if ($courant !== null && $courant['role'] === 'administrateur'): ...
 elseif ($courant['role'] === 'conducteur'): ...
 elseif ($courant['role'] === 'passager'): ...
+endif;
 \end{lstlisting}
-« On affiche aussi en haut à gauche les noms du binôme, le nom de l'utilisateur
-connecté et son solde -- comme demandé dans le sujet. »
+« Si personne n'est connecté, aucun menu métier n'apparaît » -- exactement ce que
+demande le sujet.
 
-\subsection{5. Bootstrap 5, zéro CSS maison}
-« Toute la mise en forme repose sur \textbf{Bootstrap 5} chargé par CDN : pas de
-fichier CSS personnel à maintenir. J'utilise les composants : \texttt{navbar} pour
-la barre, \texttt{dropdown} pour les menus déroulants, \texttt{card} pour les
-formulaires et les statistiques, \texttt{table table-striped} pour les listes,
-\texttt{badge} pour les statuts, \texttt{alert} pour les messages. »
+\subsection{Le style Bootstrap utilisé (identique aux TD du prof)}
+\begin{itemize}[noitemsep]
+  \item \textbf{Barre} : \texttt{navbar navbar-expand-lg bg-dark navbar-dark
+        fixed-top} avec des menus déroulants (\texttt{dropdown}).
+  \item \textbf{Bandeau} : \texttt{<div class="mt-4 p-5 bg-primary text-white
+        rounded">} (le jumbotron moderne de Bootstrap 5).
+  \item \textbf{Contenu} : chaque page est une \textbf{carte}
+        (\texttt{card / card-body bg-info}) avec un titre, et le contenu dans un
+        bloc intérieur \texttt{bg-light p-3 rounded}.
+  \item \textbf{Tableaux} : \texttt{table table-striped table-bordered
+        table-hover} avec un en-tête rouge \texttt{thead table-danger}.
+  \item \textbf{Formulaires} : \texttt{form-control}, \texttt{form-select},
+        boutons \texttt{btn btn-primary}.
+  \item \textbf{Messages} : \texttt{alert alert-success} (succès) ou
+        \texttt{alert-danger} (erreur) ; cartes \texttt{text-bg-success} /
+        \texttt{text-bg-danger} pour les résultats d'opération.
+\end{itemize}
+Tout est en Bootstrap, \textbf{sans fichier CSS personnel} (juste un petit bloc de
+style inline pour le conteneur, comme dans les TD).
 
-\subsection{6. Formulaires et tableaux}
-« Les formulaires (connexion, ajout d'un conducteur, création d'un trajet) utilisent
-\texttt{form-control} et \texttt{form-select}. Les listes sont des tableaux à
-en-tête sombre. Les statuts de trajet sont des badges verts (actif) ou gris
-(passif). »
+\subsection{Quelques vues concrètes}
+\begin{itemize}[noitemsep]
+  \item \texttt{home/accueil.php} : page d'accueil + comptes de test.
+  \item \texttt{auth/login.php} : formulaire de connexion.
+  \item \texttt{admin/utilisateurs.php} : tableau de tous les utilisateurs.
+  \item \texttt{admin/vehicules.php} : tableau des véhicules. \textbf{Attention} :
+        on n'affiche \emph{pas} les clés primaires, et le propriétaire est
+        reconstruit « prénom + nom » -- une exigence du sujet.
+  \item \texttt{conducteur/trajets.php} : trajets avec un \textbf{badge} vert
+        (actif) ou gris (passif).
+  \item \texttt{innovations/data.php} : le tableau de bord (statistiques).
+\end{itemize}
 
-\subsection{7. Sécurité côté Vue}
-« Toutes les données affichées sont échappées avec \texttt{htmlspecialchars} pour
-éviter les failles XSS : si un nom contient du code HTML, il s'affiche en texte et
-ne s'exécute pas. »
-
-\subsection{8. Messages à l'utilisateur (flash)}
-« Après une action (ajout réussi, réservation confirmée), un message de
-confirmation s'affiche en vert ; en cas d'erreur, en rouge. »
-
-\section{Ce que je montre à l'écran}
-\begin{enumerate}[leftmargin=*]
-  \item La page d'accueil et la barre de menu sans connexion (seuls 3 menus visibles).
-  \item Connexion : le menu change selon le rôle (effet « dynamique »).
-  \item Une liste (utilisateurs ou véhicules) : tableau Bootstrap, propriétaire
-        reconstruit prénom + nom (pas de clé primaire affichée).
-  \item Un formulaire d'ajout et le message de confirmation.
-  \item Le responsive : réduire la fenêtre, la barre se replie (menu hamburger).
+\section{Déroulé : que se passe-t-il quand une page s'affiche ?}
+\begin{enumerate}[noitemsep]
+  \item L'utilisateur clique sur un lien, ex. \texttt{index.php?action=admin\_utilisateurs}.
+  \item Le contrôleur récupère les données (la liste des utilisateurs) auprès du modèle.
+  \item Il appelle \texttt{render('admin/utilisateurs', \$data)}.
+  \item \texttt{render()} assemble header + fragmentMenu + ma vue + footer, et
+        \texttt{extract(\$data)} rend la variable \texttt{\$utilisateurs}
+        disponible dans la vue.
+  \item Ma vue parcourt \texttt{\$utilisateurs} avec un \texttt{foreach} et génère
+        les lignes du tableau, chaque valeur passée par \texttt{htmlspecialchars}.
 \end{enumerate}
+
+\section{Script de démo (ce que je dis à l'écran)}
+« Voici la page d'accueil. En haut, la barre de navigation affiche nos deux noms.
+Tant qu'on n'est pas connecté, seuls trois menus apparaissent : Innovations,
+Examinateur et Se connecter. \emph{[Je me connecte.]} Maintenant qu'on est
+administrateur, un nouveau menu Administrateur est apparu, et à droite s'affichent
+le nom et le solde. \emph{[Liste des utilisateurs.]} C'est une carte Bootstrap avec
+un tableau à en-tête rouge. \emph{[Liste des véhicules.]} Remarquez qu'on n'affiche
+pas les identifiants techniques : le propriétaire est reconstruit à partir du
+prénom et du nom. \emph{[Je réduis la fenêtre.]} La barre se replie en menu
+hamburger : c'est le responsive de Bootstrap. »
 
 \section{Questions potentielles du jury (et réponses)}
 
-\question{Pourquoi séparer la Vue du reste du code ?}
-\reponse{Pour respecter le principe de séparation des responsabilités : on peut
-changer l'affichage (passer à Bootstrap par exemple) sans toucher à la logique, et
-réutiliser un même contrôleur avec plusieurs vues.}
+\question{C'est quoi la couche Vue ?}
+\reponse{La partie qui s'occupe uniquement de l'affichage. Elle reçoit des données
+déjà préparées par le contrôleur et les met en forme en HTML, sans logique métier
+ni requête à la base.}
 
 \question{Comment la barre de menu sait quel menu afficher ?}
 \reponse{Elle lit \texttt{\$\_SESSION['login\_id']}, récupère l'utilisateur via le
 modèle, puis teste son champ \texttt{role}. Un seul des trois menus métier est
-rendu selon ce rôle.}
+affiché selon ce rôle.}
 
-\question{Que se passe-t-il si aucun utilisateur n'est connecté ?}
+\question{Et si personne n'est connecté ?}
 \reponse{\texttt{login\_id} vaut -1, donc aucun menu métier n'est affiché : seuls
-Innovations, Examinateur et Se connecter restent visibles, comme l'exige le sujet.}
+Innovations, Examinateur et Se connecter restent visibles.}
+
+\question{Pourquoi Bootstrap ?}
+\reponse{Pour un rendu propre et responsive immédiat, avec des composants testés.
+C'est aussi la bibliothèque utilisée dans les TD. On garde la maîtrise du HTML et
+des classes choisies.}
+
+\question{Avez-vous écrit du CSS ?}
+\reponse{Quasiment pas : on utilise les classes Bootstrap. Il y a seulement un petit
+bloc de style inline dans l'en-tête pour la marge du conteneur sous la barre fixe.}
 
 \question{À quoi sert \texttt{htmlspecialchars} ?}
-\reponse{À échapper les caractères spéciaux HTML en sortie. C'est une protection
-contre les attaques XSS : du code injecté dans un nom s'affiche comme du texte au
-lieu d'être exécuté par le navigateur.}
-
-\question{Pourquoi Bootstrap plutôt qu'un CSS écrit à la main ?}
-\reponse{Bootstrap fournit des composants testés et un rendu responsive immédiat,
-ce qui nous a permis de nous concentrer sur la logique. La structure HTML reste la
-nôtre ; on maîtrise les classes utilisées.}
+\reponse{À échapper les caractères HTML en sortie : c'est une protection contre les
+failles XSS. Du code injecté dans un champ s'affiche comme du texte au lieu d'être
+exécuté.}
 
 \question{Comment une vue reçoit-elle ses données ?}
 \reponse{Le contrôleur passe un tableau associatif à \texttt{render()}, qui fait un
-\texttt{extract()} : chaque clé devient une variable disponible dans la vue (par
-exemple \texttt{\$utilisateurs}).}
+\texttt{extract()} : chaque clé devient une variable utilisable dans la vue.}
 
 \question{Différence entre \texttt{<?= } et \texttt{<?php echo} ?}
-\reponse{\texttt{<?= \$x ?>} est un raccourci d'\texttt{echo}. On l'utilise pour
-afficher une valeur de façon concise dans le HTML.}
+\reponse{\texttt{<?= \$x ?>} est simplement un raccourci d'écriture pour
+\texttt{echo \$x}. On s'en sert pour afficher une valeur dans le HTML.}
 
-\question{Comment gérez-vous l'affichage sur mobile ?}
-\reponse{Grâce aux classes responsive de Bootstrap : \texttt{navbar-toggler} replie
-le menu en « hamburger », et \texttt{table-responsive} rend les tableaux
-défilables horizontalement.}
+\question{C'est quoi un fragment / le fragmentMenu ?}
+\reponse{Un morceau de vue réutilisé sur toutes les pages. Le fragmentMenu est la
+barre de navigation ; on l'écrit une seule fois et il est inclus partout par
+\texttt{render()}.}
 
-\question{Où est gérée l'ouverture des menus déroulants ?}
-\reponse{Par le JavaScript de Bootstrap (le bundle chargé en bas de page). Nous,
-on ne fait qu'ajouter les attributs \texttt{data-bs-toggle="dropdown"}.}
+\question{Comment gérez-vous l'affichage mobile ?}
+\reponse{Avec les classes responsive de Bootstrap : \texttt{navbar-toggler} replie
+le menu en hamburger, et les tableaux peuvent défiler horizontalement.}
 
-\question{Y a-t-il de la logique métier dans les vues ?}
-\reponse{Non. Les vues ne contiennent que des boucles d'affichage et des conditions
-d'affichage. Tout le métier (requêtes, calculs, paiements) est dans les
-contrôleurs et les modèles.}
+\question{Qui gère l'ouverture des menus déroulants ?}
+\reponse{Le JavaScript de Bootstrap (le bundle chargé dans l'en-tête). On ajoute
+juste les attributs \texttt{data-bs-toggle="dropdown"}.}
+
+\question{Pourquoi reconstruire le propriétaire « prénom + nom » dans la liste des
+véhicules ?}
+\reponse{Parce que le sujet interdit d'afficher les clés primaires : on ne montre
+pas l'identifiant du propriétaire mais son nom lisible, obtenu par une jointure
+faite dans le modèle.}
+
+\question{Y a-t-il de la logique métier dans vos vues ?}
+\reponse{Non. Les vues ne contiennent que des boucles et conditions d'affichage.
+Tout le métier est dans les contrôleurs et les modèles.}
 
 \end{document}

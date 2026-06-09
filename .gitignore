@@ -22,3 +22,4 @@ connexion_base.txt
 *.log
 *.out
 *.synctex.gz
+*.toc

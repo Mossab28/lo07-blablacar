@@ -7,111 +7,162 @@
 \usepackage{listings}
 \usepackage{enumitem}
 \usepackage{titlesec}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue}
 
 \definecolor{bleu}{HTML}{1d6ff2}
 \definecolor{rouge}{HTML}{e03131}
 \definecolor{gris}{HTML}{f0f0f0}
 
-\lstset{
-  basicstyle=\ttfamily\footnotesize,
-  backgroundcolor=\color{gris},
-  frame=single,
-  breaklines=true,
-  language=PHP,
-  showstringspaces=false
-}
+\lstset{basicstyle=\ttfamily\footnotesize, backgroundcolor=\color{gris}, frame=single, breaklines=true, language=PHP, showstringspaces=false}
 
 \titleformat{\section}{\Large\bfseries\color{bleu}}{\thesection}{1em}{}
 \titleformat{\subsection}{\large\bfseries\color{rouge}}{\thesubsection}{1em}{}
 
 \newcommand{\question}[1]{\vspace{0.4em}\noindent\textbf{\color{rouge}Q : #1}\par}
 \newcommand{\reponse}[1]{\noindent\textbf{R :} #1\par\vspace{0.4em}}
+\newcommand{\motcle}[1]{\noindent\textbf{\color{bleu}#1} :\ }
 
-\title{\textbf{Soutenance LO07 -- BlaBlaCar 2026}\\[0.3em]\large Partie de Moss'Ab : les couches \textbf{Contrôleur} et \textbf{Modèle}}
+\title{\textbf{Guide complet de soutenance -- LO07 BlaBlaCar 2026}\\[0.3em]\large Partie de Moss'Ab : les couches \textbf{Contrôleur} et \textbf{Modèle}}
 \author{Moss'Ab Mirande-Ney \quad (binôme : Pierre Bheidi)}
 \date{}
 
 \begin{document}
 \maketitle
+\tableofcontents
+\vspace{1em}
+\hrule
+\vspace{1em}
 
-\section{Ce que je présente}
-Je suis responsable des couches \textbf{Contrôleur} et \textbf{Modèle} : le cœur de
-l'application. Cela comprend le point d'entrée unique, le routeur, la logique
-métier (authentification, paiements, réservations) et tout l'accès à la base de
-données via PDO et des requêtes préparées.
+\noindent\textit{Ce document est un guide complet : même sans avoir codé cette
+partie, tu pourras tout présenter et répondre aux questions du jury. Lis-le une
+fois en entier, puis relis le « script de démo » et les « questions/réponses ».}
 
-\section{Texte à dire pendant la démo}
+\section{Contexte du projet (à connaître absolument)}
 
-\subsection{1. Le Front Controller (index.php)}
-« Toutes les requêtes passent par un seul fichier, \texttt{index.php}. Il démarre
-la session, charge la configuration, les modèles et le routeur, puis délègue à
-celui-ci. Au tout premier accès d'une session, on remet \texttt{login\_id} à -1
-pour garantir que personne n'est connecté au démarrage, comme demandé dans le
-sujet. »
+\motcle{Le sujet} BlaBlaCar est une application web de \textbf{covoiturage}. Selon
+son \textbf{rôle}, l'utilisateur connecté accède à des fonctions différentes :
+administrateur (gère utilisateurs/véhicules/villes), conducteur (gère ses véhicules
+et trajets), passager (réserve et consulte).
+
+\motcle{La base de données} 5 tables : \texttt{utilisateur} (id, nom, prenom,
+role, login, password, solde), \texttt{vehicule} (+ propriétaire), \texttt{ville},
+\texttt{trajet} (départ, arrivée, conducteur, véhicule, prix, date, heure, statut
+actif/passif), \texttt{reservation} (lie un trajet et un passager ; un passager
+peut réserver plusieurs fois).
+
+\motcle{L'architecture} Patron \textbf{MVC}. \textbf{Ma partie, c'est le Contrôleur
+et le Modèle} -- le cœur logique de l'application et l'accès à la base.
+
+\section{Les concepts que je dois savoir expliquer}
+
+\motcle{MVC} Le \textbf{Modèle} parle à la base de données. Le \textbf{Contrôleur}
+reçoit la requête de l'utilisateur, appelle le modèle, applique la logique, puis
+choisit la vue. La \textbf{Vue} affiche. Cette séparation rend le code clair et
+maintenable.
+
+\motcle{Front Controller} Un \textbf{point d'entrée unique} (\texttt{index.php})
+par lequel passent toutes les requêtes. Il initialise tout (session, config,
+routeur) une seule fois.
+
+\motcle{Routeur} Un aiguilleur : il lit l'\textbf{action} demandée dans l'URL
+(ex.~\texttt{?action=admin\_utilisateurs}) et appelle le bon contrôleur et la bonne
+méthode.
+
+\motcle{PDO} \emph{PHP Data Objects} : l'interface standard de PHP pour parler à
+une base de données (ici MySQL). On l'utilise avec des \textbf{requêtes
+préparées}.
+
+\motcle{Requête préparée} Une requête où les valeurs sont passées séparément, via
+des « \texttt{?} ». Cela empêche les \textbf{injections SQL} : un utilisateur ne
+peut pas glisser du code SQL dans un champ de formulaire.
+
+\motcle{Session} Mémoire serveur qui retient l'utilisateur connecté
+(\texttt{\$\_SESSION['login\_id']}) entre les pages.
+
+\motcle{Singleton} Un objet créé \textbf{une seule fois} et réutilisé partout. On
+l'emploie pour la connexion à la base : une seule connexion par requête HTTP.
+
+\section{Ma partie en détail : Contrôleurs et Modèles}
+
+\subsection{Le point d'entrée : index.php}
+Démarre la session, charge la config, les modèles et le routeur, puis aiguille.
+Au \textbf{premier accès} d'une session, on remet \texttt{login\_id} à -1 pour
+garantir que personne n'est connecté au démarrage (exigence du sujet), sans
+déconnecter l'utilisateur à chaque page grâce à un drapeau de session.
 \begin{lstlisting}
 if (!isset($_SESSION['app_demarree'])) {
     $_SESSION['app_demarree'] = true;
-    $_SESSION['login_id'] = -1;   // personne connecte au demarrage
+    $_SESSION['login_id'] = -1;
 }
 Router::dispatch($action);
 \end{lstlisting}
 
-\subsection{2. Le routeur déclaratif}
-« Le routeur est une simple table de correspondance entre une \textbf{action} (dans
-l'URL) et un couple \textbf{[Contrôleur, méthode]}. Pour ajouter une fonctionnalité,
-on ajoute juste une ligne. C'est lisible et facile à maintenir. »
+\subsection{Le routeur (app/router/router.php)}
+Une simple table associative action $\rightarrow$ [Contrôleur, méthode]. La
+méthode \texttt{dispatch()} instancie le contrôleur et appelle la méthode. Si
+l'action est inconnue, on renvoie l'accueil.
 \begin{lstlisting}
 'admin_utilisateurs' => ['AdminController', 'listeUtilisateurs'], // A1
 'cond_cloturer'      => ['ConducteurController', 'cloturerTrajet'], // C5
+'pass_reserver'      => ['PassagerController', 'reserver'],         // P2
 \end{lstlisting}
 
-\subsection{3. Le contrôleur de base}
-« Tous les contrôleurs héritent d'une classe \texttt{Controller} qui fournit :
-\texttt{render()} (affiche une vue dans le gabarit), \texttt{redirect()},
-\texttt{exigerRole()} (le contrôle d'accès), et un système de messages flash. »
+\subsection{Le contrôleur de base (Controller.php)}
+Tous les contrôleurs en héritent. Il fournit :
+\begin{itemize}[noitemsep]
+  \item \texttt{render(\$vue, \$data)} : affiche une vue dans le gabarit commun ;
+  \item \texttt{redirect(\$action)} : redirige vers une autre action ;
+  \item \texttt{exigerRole(\$roles)} : le contrôle d'accès (garde) ;
+  \item \texttt{flash()} : messages temporaires (succès/erreur).
+\end{itemize}
 \begin{lstlisting}
 protected function exigerRole(array $rolesAutorises): array {
     $user = $this->utilisateurConnecte();
     if ($user === null || !in_array($user['role'], $rolesAutorises, true)) {
-        $this->redirect('login');   // acces refuse
+        $this->redirect('login'); // acces refuse
     }
     return $user;
 }
 \end{lstlisting}
 
-\subsection{4. L'authentification (F1 / F2)}
-« Le \texttt{AuthController} vérifie le couple login / mot de passe via le modèle.
-Si c'est bon, on stocke l'\texttt{id} en session et on redirige vers le menu du
-rôle. La déconnexion remet \texttt{login\_id} à -1. »
+\subsection{Les contrôleurs concrets}
+\begin{itemize}[noitemsep]
+  \item \texttt{AuthController} : connexion (F1) et déconnexion (F2).
+  \item \texttt{AdminController} : A1 à A7 (utilisateurs, véhicules, villes).
+  \item \texttt{ConducteurController} : C1 à C5 (véhicules, trajets, passagers, clôture).
+  \item \texttt{PassagerController} : P1, P2 (réservations).
+  \item \texttt{ExaminateurController} : E1 (superglobales), E2 (10 réservations aléatoires).
+  \item \texttt{InnovationController} : tableau de bord (données) et note MVC.
+\end{itemize}
 
-\subsection{5. La logique métier la plus intéressante : la clôture (C5)}
-« Quand un conducteur clôture un trajet, deux choses se passent : le trajet passe en
-statut passif, ET les paiements sont réglés. Pour chaque réservation, le passager
-est débité du prix et le conducteur crédité d'autant. On vérifie d'abord que le
-trajet appartient bien au conducteur connecté. »
+\subsection{La logique métier la plus importante : la clôture (C5)}
+Quand un conducteur clôture un trajet : on vérifie qu'il lui appartient et qu'il
+est actif, on règle les \textbf{paiements} (chaque réservation débite le passager
+et crédite le conducteur), puis on passe le trajet en \texttt{passif}.
 \begin{lstlisting}
 foreach ($reservations as $resa) {
-    $utilisateurModel->ajusterSolde($resa['passager_id'], -$prix); // debit
-    $utilisateurModel->ajusterSolde($user['id'], $prix);           // credit
+    $utilisateurModel->ajusterSolde($resa['passager_id'], -$prix); // debit passager
+    $utilisateurModel->ajusterSolde($user['id'], $prix);           // credit conducteur
 }
-$trajetModel->cloturer($trajetId);  // statut -> passif
+$trajetModel->cloturer($trajetId); // statut -> passif
 \end{lstlisting}
 
-\subsection{6. Les modèles et la couche d'accès}
-« Tous les modèles héritent d'une classe abstraite \texttt{Model} qui centralise la
-connexion PDO et des utilitaires : \texttt{fetchAll}, \texttt{fetchOne},
-\texttt{execute}, \texttt{nextId}. \textbf{Seule cette couche parle à la base} :
-ni les contrôleurs ni les vues n'écrivent de SQL brut directement. »
+\subsection{Les modèles (app/model/)}
+\begin{itemize}[noitemsep]
+  \item \texttt{Model} (abstrait) : centralise PDO et les helpers
+        \texttt{fetchAll}, \texttt{fetchOne}, \texttt{execute}, \texttt{nextId}.
+        \textbf{Seule cette couche écrit du SQL.}
+  \item \texttt{Utilisateur} : authentification, ajout, ajustement de solde.
+  \item \texttt{Vehicule}, \texttt{Ville} : listes et ajouts.
+  \item \texttt{Trajet} : requêtes avec \textbf{jointures} (noms des villes, du
+        conducteur, du véhicule), création, clôture.
+  \item \texttt{Reservation} : réservations d'un passager, passagers d'un trajet.
+\end{itemize}
 
-\subsection{7. La connexion PDO (singleton)}
-« La connexion à MySQL est un singleton : une seule connexion est créée et
-partagée pour toute la requête HTTP. PDO est configuré pour lever des exceptions et
-on utilise des requêtes préparées partout. »
-
-\subsection{8. Sécurité : requêtes préparées}
-« Toutes les requêtes utilisent des paramètres liés (\texttt{?}), ce qui protège
-contre les injections SQL : les valeurs saisies par l'utilisateur ne sont jamais
-concaténées dans le SQL. »
+\subsection{La connexion (Database.php) et la sécurité}
+La connexion PDO est un \textbf{singleton} (une instance partagée). PDO est
+configuré pour lever des exceptions. \textbf{Toutes} les requêtes sont préparées :
 \begin{lstlisting}
 $this->fetchOne(
   'SELECT * FROM utilisateur WHERE login = ? AND password = ?',
@@ -119,78 +170,93 @@ $this->fetchOne(
 );
 \end{lstlisting}
 
-\section{Ce que je montre à l'écran}
-\begin{enumerate}[leftmargin=*]
-  \item Connexion en administrateur : ajout d'un conducteur, d'un véhicule, d'une ville.
-  \item Connexion en conducteur : création d'un trajet, puis \textbf{clôture} en
-        montrant les soldes qui changent (passager débité, conducteur crédité).
-  \item Connexion en passager : réservation d'un trajet actif.
-  \item Menu Examinateur : E1 (superglobales) et E2 (10 réservations aléatoires).
+\subsection{La configuration (config.php)}
+Détecte l'environnement et choisit les bons identifiants de base : variables
+d'environnement (déploiement Docker), serveur dev-isi, ou poste local. Les mots de
+passe réels sont dans un fichier séparé non publié.
+
+\section{Déroulé d'une requête, de bout en bout}
+\begin{enumerate}[noitemsep]
+  \item L'utilisateur appelle \texttt{index.php?action=cond\_cloturer} (POST).
+  \item \texttt{index.php} démarre la session et appelle \texttt{Router::dispatch}.
+  \item Le routeur appelle \texttt{ConducteurController::cloturerTrajet()}.
+  \item Le contrôleur vérifie le rôle (\texttt{exigerRole}), lit le trajet et ses
+        réservations via les modèles, effectue les paiements, clôture le trajet.
+  \item Il redirige vers la liste des trajets avec un message flash de confirmation.
 \end{enumerate}
+
+\section{Script de démo (ce que je dis à l'écran)}
+« Je me connecte en administrateur : voici l'ajout d'un conducteur, d'un véhicule,
+d'une ville -- chaque insertion passe par un contrôleur qui valide les données puis
+appelle le modèle. \emph{[Connexion conducteur.]} Je crée un trajet, puis je le
+clôture : observez les soldes -- le passager est débité du prix, et mon compte de
+conducteur est crédité d'autant. C'est la logique métier la plus intéressante.
+\emph{[Menu Examinateur.]} Voici les superglobales (cookies et session), et l'ajout
+de 10 réservations aléatoires sur des trajets actifs. Tout l'accès à la base se
+fait par des requêtes préparées, dans la couche Modèle uniquement. »
 
 \section{Questions potentielles du jury (et réponses)}
 
-\question{Qu'est-ce qu'un Front Controller ?}
-\reponse{Un point d'entrée unique par lequel passent toutes les requêtes
-(\texttt{index.php}). Il centralise l'initialisation (session, config, routeur) et
-évite de dupliquer ce code dans chaque page.}
+\question{C'est quoi un Front Controller ?}
+\reponse{Un point d'entrée unique (\texttt{index.php}) par lequel passent toutes les
+requêtes. Il centralise l'initialisation et évite de la dupliquer dans chaque page.}
 
 \question{Comment fonctionne votre routeur ?}
-\reponse{Il contient un tableau associatif action $\rightarrow$ [Contrôleur,
-méthode]. La méthode \texttt{dispatch()} lit l'action dans l'URL, instancie le bon
-contrôleur et appelle la méthode. Si l'action est inconnue, on renvoie l'accueil.}
+\reponse{Il contient une table action $\rightarrow$ [Contrôleur, méthode]. La
+méthode \texttt{dispatch()} lit l'action de l'URL, instancie le bon contrôleur et
+appelle la méthode. Action inconnue $\rightarrow$ accueil.}
 
 \question{Comment gérez-vous l'authentification et les rôles ?}
-\reponse{Après connexion, on stocke l'\texttt{id} de l'utilisateur en session.
-Chaque contrôleur protégé appelle \texttt{exigerRole()} qui vérifie que
-l'utilisateur connecté a bien le rôle requis, sinon il est redirigé vers le login.}
+\reponse{Après connexion réussie, on stocke l'\texttt{id} en session. Chaque
+contrôleur protégé appelle \texttt{exigerRole()} qui vérifie le rôle de
+l'utilisateur connecté ; sinon redirection vers le login.}
 
 \question{Pourquoi des requêtes préparées ?}
-\reponse{Pour empêcher les injections SQL. Les valeurs sont passées séparément de la
-requête, donc un utilisateur ne peut pas injecter de code SQL via un champ de
-formulaire.}
+\reponse{Pour empêcher les injections SQL : les valeurs sont transmises séparément
+de la requête, donc non interprétées comme du code.}
 
-\question{Pourquoi un singleton pour la connexion PDO ?}
+\question{Pourquoi un singleton pour PDO ?}
 \reponse{Pour n'ouvrir qu'une seule connexion par requête HTTP et la partager entre
-tous les modèles, ce qui évite de gaspiller des connexions.}
+tous les modèles.}
 
-\question{Décrivez précisément ce qui se passe à la clôture d'un trajet.}
-\reponse{On vérifie que le trajet appartient au conducteur et qu'il est actif. Puis,
-pour chaque réservation, on débite le passager du prix et on crédite le conducteur.
-Enfin on passe le trajet en statut passif pour bloquer les nouvelles réservations.}
+\question{Décrivez précisément la clôture d'un trajet.}
+\reponse{On vérifie que le trajet appartient au conducteur connecté et qu'il est
+actif. Pour chaque réservation, on débite le passager du prix et on crédite le
+conducteur. Enfin on passe le trajet en statut passif.}
 
 \question{Et si un passager a réservé deux fois le même trajet ?}
-\reponse{Il est facturé deux fois : on parcourt toutes les lignes de réservation, donc
-deux réservations entraînent deux débits. C'est le comportement attendu par le sujet.}
+\reponse{Il est facturé deux fois : on parcourt toutes les lignes de réservation,
+donc deux réservations entraînent deux débits. C'est le comportement attendu.}
 
-\question{Pourquoi calculer l'id avec \texttt{nextId} au lieu d'AUTO\_INCREMENT ?}
-\reponse{Le jeu de données fourni insère les id manuellement, sans AUTO\_INCREMENT.
-Pour rester cohérent, on prend \texttt{MAX(id)+1} lors d'un ajout.}
+\question{Pourquoi \texttt{nextId} au lieu d'AUTO\_INCREMENT ?}
+\reponse{Le jeu de données fourni insère les id manuellement. Pour rester cohérent,
+on calcule \texttt{MAX(id)+1} lors d'un ajout.}
 
 \question{Différence entre \texttt{fetchAll} et \texttt{fetchOne} ?}
-\reponse{\texttt{fetchAll} renvoie toutes les lignes (une liste), \texttt{fetchOne}
-renvoie la première ligne seule (ou null). On choisit selon qu'on attend une liste
-ou un seul enregistrement.}
+\reponse{\texttt{fetchAll} renvoie toutes les lignes ; \texttt{fetchOne} renvoie la
+première (ou null). On choisit selon qu'on attend une liste ou un seul enregistrement.}
 
 \question{Comment le modèle communique-t-il avec la vue ?}
-\reponse{Il ne communique pas directement. Le contrôleur récupère les données du
-modèle, puis les transmet à la vue via \texttt{render()}. Le modèle ignore tout de
-l'affichage.}
+\reponse{Indirectement : le contrôleur récupère les données du modèle et les passe à
+la vue via \texttt{render()}. Le modèle ignore tout de l'affichage.}
 
 \question{Comment empêchez-vous un conducteur de clôturer le trajet d'un autre ?}
-\reponse{Avant toute action, on récupère le trajet et on vérifie que son
-\texttt{conducteur\_id} est bien celui de l'utilisateur connecté. Sinon l'action est
-refusée.}
+\reponse{Avant l'action, on vérifie que le \texttt{conducteur\_id} du trajet est
+bien celui de l'utilisateur connecté ; sinon l'action est refusée.}
 
 \question{Avez-vous utilisé une transaction pour les paiements ?}
-\reponse{Dans cette version, les mises à jour de solde sont successives. Une
-amélioration serait de les encapsuler dans une transaction PDO
-(\texttt{beginTransaction} / \texttt{commit}) pour garantir l'atomicité -- c'est un
-axe d'évolution que l'on peut mentionner.}
+\reponse{Pas dans cette version : les mises à jour sont successives. Une amélioration
+serait de les encadrer par une transaction PDO (\texttt{beginTransaction}/\texttt{commit})
+pour garantir l'atomicité -- c'est un axe d'évolution qu'on peut citer.}
+
+\question{Qu'est-ce qu'une jointure et où l'utilisez-vous ?}
+\reponse{Une requête qui combine plusieurs tables. On l'utilise dans le modèle
+\texttt{Trajet} pour afficher les noms des villes, du conducteur et du véhicule
+plutôt que leurs identifiants.}
 
 \question{Comment l'application s'adapte-t-elle au serveur (local / dev-isi) ?}
-\reponse{Le fichier de configuration détecte l'environnement (variables d'env,
-ou présence de \texttt{dev-isi.utt.fr} dans l'URL) et choisit automatiquement les
-bons identifiants de base de données.}
+\reponse{Le fichier de configuration détecte l'environnement (variables d'env, ou
+présence de \texttt{dev-isi.utt.fr} dans l'URL) et choisit automatiquement les bons
+identifiants de base de données.}
 
 \end{document}

@@ -21,17 +21,20 @@ $surDevIsi = isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'dev-
 
 if ($surDevIsi) {
     // ===== Serveur dev-isi.utt.fr =====================================
-    // À COMPLÉTER avec TES identifiants (cf. fichier connexion_base.txt
-    // récupéré via FileZilla, et phpMyAdmin de dev-isi) :
-    //   - DB_USER : ton login LDAP (ex: 'mirandey')
-    //   - DB_PASS : le mot de passe MySQL contenu dans connexion_base.txt
-    //   - DB_NAME : le nom de TA base sur dev-isi (visible dans phpMyAdmin,
-    //               souvent identique au login, ex: 'mirandey')
+    // Les identifiants réels sont lus depuis config/secrets.php, un fichier
+    // NON versionné (.gitignore) pour ne jamais exposer le mot de passe sur
+    // GitHub. Voir config/secrets.example.php pour le modèle à copier.
     define('DB_HOST', 'localhost');
     define('DB_PORT', '3306');
-    define('DB_NAME', 'A_REMPLACER_NOM_BASE');
-    define('DB_USER', 'A_REMPLACER_LOGIN_LDAP');
-    define('DB_PASS', 'A_REMPLACER_MOT_DE_PASSE');
+
+    $secretsFile = __DIR__ . '/secrets.php';
+    $s = file_exists($secretsFile)
+        ? require $secretsFile
+        : ['name' => 'A_REMPLACER_NOM_BASE', 'user' => 'A_REMPLACER_LOGIN', 'pass' => 'A_REMPLACER_MDP'];
+
+    define('DB_NAME', $s['name']);
+    define('DB_USER', $s['user']);
+    define('DB_PASS', $s['pass']);
 } else {
     // ===== Développement local (XAMPP / MAMP / php -S) ================
     define('DB_HOST', '127.0.0.1');

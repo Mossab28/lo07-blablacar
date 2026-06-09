@@ -14,3 +14,7 @@ Thumbs.db
 # Dépendances éventuelles
 /vendor/
 node_modules/
+
+# Secrets — identifiants base de données dev-isi (NE JAMAIS PUBLIER)
+projet/config/secrets.php
+connexion_base.txt

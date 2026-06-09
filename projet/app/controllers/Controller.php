@@ -8,9 +8,7 @@ abstract class Controller
 
         require VIEWS_PATH . '/layout/header.php';
         require VIEWS_PATH . '/layout/fragmentMenu.php';
-        echo '<main class="container flex-grow-1 pb-4">';
         require $contenuVue;
-        echo '</main>';
         require VIEWS_PATH . '/layout/footer.php';
     }
 

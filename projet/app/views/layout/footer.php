@@ -1,9 +1,11 @@
-<footer class="mt-auto py-3 bg-white border-top text-center text-muted small">
-    <div class="container">
-        LO07 2026 | projet BlaBlaCar | Marc LEMERCIER | mars – avril 2026 &nbsp;•&nbsp;
-        Réalisé par <?= htmlspecialchars(NOMS_ETUDIANTS) ?>
-    </div>
-</footer>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <p></p>
+  <hr/>
+  <ul>
+    <li><?= htmlspecialchars(NOMS_ETUDIANTS) ?> - LO07 Technologies du Web - P26</li>
+    <li>UTT, Pr. Marc Lemercier - Projet BlaBlaCar 2026</li>
+  </ul>
+  <hr/>
+
+</div>
 </body>
 </html>

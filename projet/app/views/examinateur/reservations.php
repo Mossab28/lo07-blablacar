@@ -1,11 +1,17 @@
-<h2 class="text-danger mb-3">10 nouvelles réservations aléatoires</h2>
-<?php if (!empty($erreur)): ?>
-    <div class="alert alert-danger"><?= htmlspecialchars($erreur) ?></div>
-<?php else: ?>
-    <ol class="list-group list-group-numbered mb-3">
-        <?php foreach ($resultats as $ligne): ?>
-            <li class="list-group-item"><?= htmlspecialchars($ligne) ?></li>
-        <?php endforeach; ?>
-    </ol>
-    <a class="btn btn-outline-primary" href="<?= BASE_URL ?>index.php?action=exam_reservations">Recommencer</a>
-<?php endif; ?>
+<div class="card">
+  <div class="card-body bg-info">
+    <h5 class="card-title">10 nouvelles réservations aléatoires</h5>
+    <div class="mx-lg-3 mt-3 bg-light p-3 rounded">
+      <?php if (!empty($erreur)): ?>
+        <div class="alert alert-danger mb-0"><?= htmlspecialchars($erreur) ?></div>
+      <?php else: ?>
+        <ol>
+          <?php foreach ($resultats as $ligne): ?>
+            <li><?= htmlspecialchars($ligne) ?></li>
+          <?php endforeach; ?>
+        </ol>
+        <a class="btn btn-primary" href="<?= BASE_URL ?>index.php?action=exam_reservations">Recommencer</a>
+      <?php endif; ?>
+    </div>
+  </div>
+</div>

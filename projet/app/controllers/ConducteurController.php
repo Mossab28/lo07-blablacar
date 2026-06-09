@@ -1,7 +1,4 @@
 <?php
-/**
- * Contrôleur Conducteur (C1..C5).
- */
 class ConducteurController extends Controller
 {
     private function garde(): array
@@ -9,7 +6,6 @@ class ConducteurController extends Controller
         return $this->exigerRole(['conducteur']);
     }
 
-    /** C1 : liste des véhicules du conducteur connecté. */
     public function mesVehicules(): void
     {
         $user = $this->garde();
@@ -20,7 +16,6 @@ class ConducteurController extends Controller
         ], 'Mes véhicules');
     }
 
-    /** C2 : tous les trajets (actifs et passifs) du conducteur. */
     public function mesTrajets(): void
     {
         $user = $this->garde();
@@ -32,7 +27,6 @@ class ConducteurController extends Controller
         ], 'Mes trajets');
     }
 
-    /** C3 : formulaire de création d'un trajet. */
     public function formTrajet(): void
     {
         $user = $this->garde();
@@ -44,7 +38,6 @@ class ConducteurController extends Controller
         ], 'Nouveau trajet');
     }
 
-    /** C3 : traitement de la création d'un trajet. */
     public function ajouterTrajet(): void
     {
         $user = $this->garde();
@@ -56,7 +49,6 @@ class ConducteurController extends Controller
         $date         = $_POST['date_depart'] ?? '';
         $heure        = $_POST['heure_depart'] ?? '';
 
-        // Validations : champs présents, villes différentes, véhicule au conducteur.
         $vehicule = ctype_digit((string) $vehiculeId)
             ? (new Vehicule())->trouverParId((int) $vehiculeId)
             : null;
@@ -92,7 +84,6 @@ class ConducteurController extends Controller
         ], 'Résultat');
     }
 
-    /** C4 : liste des passagers de l'un des trajets actifs du conducteur. */
     public function passagersTrajet(): void
     {
         $user = $this->garde();
@@ -105,7 +96,7 @@ class ConducteurController extends Controller
 
         if ($trajetId !== null && ctype_digit((string) $trajetId)) {
             $trajetChoisi = $trajetModel->trouverParId((int) $trajetId);
-            // Sécurité : le trajet doit appartenir au conducteur et être actif.
+
             if ($trajetChoisi !== null
                 && (int) $trajetChoisi['conducteur_id'] === (int) $user['id']
                 && $trajetChoisi['statut'] === 'actif') {
@@ -122,11 +113,6 @@ class ConducteurController extends Controller
         ], 'Passagers de mes trajets actifs');
     }
 
-    /**
-     * C5 : clôture d'un trajet actif.
-     * Passe le trajet en 'passif' ET règle les paiements : chaque réservation
-     * débite le passager du prix du trajet et crédite le conducteur.
-     */
     public function cloturerTrajet(): void
     {
         $user = $this->garde();
@@ -136,7 +122,6 @@ class ConducteurController extends Controller
 
         $trajetsActifs = $trajetModel->actifsParConducteur((int) $user['id']);
 
-        // GET : afficher la liste des trajets actifs à clôturer.
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
             $this->render('conducteur/cloturer', [
                 'trajetsActifs' => $trajetsActifs,
@@ -145,7 +130,6 @@ class ConducteurController extends Controller
             return;
         }
 
-        // POST : traiter la clôture.
         $trajetId = $_POST['trajet_id'] ?? '';
         $trajet = ctype_digit((string) $trajetId) ? $trajetModel->brutParId((int) $trajetId) : null;
 
@@ -157,13 +141,12 @@ class ConducteurController extends Controller
             return;
         }
 
-        // --- Paiements : une réservation = un trajet payé par le passager ---
         $reservations = $reservationModel->brutesParTrajet((int) $trajetId);
         $prix  = (float) $trajet['prix'];
         $total = 0.0;
         foreach ($reservations as $resa) {
-            $utilisateurModel->ajusterSolde((int) $resa['passager_id'], -$prix); // débit passager
-            $utilisateurModel->ajusterSolde((int) $user['id'], $prix);           // crédit conducteur
+            $utilisateurModel->ajusterSolde((int) $resa['passager_id'], -$prix);
+            $utilisateurModel->ajusterSolde((int) $user['id'], $prix);
             $total += $prix;
         }
 

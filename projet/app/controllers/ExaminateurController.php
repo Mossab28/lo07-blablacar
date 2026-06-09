@@ -1,14 +1,8 @@
 <?php
-/**
- * Contrôleur Examinateur (E1, E2). Accessible sans connexion.
- */
 class ExaminateurController extends Controller
 {
-    /** E1 : affiche les deux superglobales ($_COOKIE et $_SESSION). */
     public function superGlobales(): void
     {
-        // On pose un cookie de démonstration s'il n'existe pas encore,
-        // afin que $_COOKIE ne soit pas vide lors de la consultation.
         if (!isset($_COOKIE['blablacar_demo'])) {
             setcookie('blablacar_demo', 'visiteur_' . substr(md5(NOMS_ETUDIANTS), 0, 8), time() + 3600, BASE_URL);
         }
@@ -19,11 +13,6 @@ class ExaminateurController extends Controller
         ], 'SuperGlobales (Cookies et Sessions)');
     }
 
-    /**
-     * E2 : ajoute 10 réservations aléatoires.
-     * Chaque réservation porte sur un trajet ACTIF choisi au hasard,
-     * pour un passager choisi au hasard.
-     */
     public function reservationsAleatoires(): void
     {
         $trajetModel      = new Trajet();

@@ -1,4 +1,3 @@
-<?php /** Innovation DATA : tableau de bord construit à partir des données existantes. */ ?>
 <h2 class="section-titre">Innovation données — Tableau de bord du covoiturage</h2>
 <p>
     Exploitation originale des données déjà présentes en base (sans table

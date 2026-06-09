@@ -1,4 +1,3 @@
-<?php /** A1 : liste des utilisateurs. */ ?>
 <h2 class="section-titre">Liste des utilisateurs</h2>
 <?php if (!empty($flash)): ?><div class="alert info"><?= htmlspecialchars($flash) ?></div><?php endif; ?>
 

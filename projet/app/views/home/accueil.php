@@ -1,4 +1,3 @@
-<?php /** Page d'accueil. */ ?>
 <?php if (!empty($flash)): ?>
     <div class="alert info"><?= htmlspecialchars($flash) ?></div>
 <?php endif; ?>

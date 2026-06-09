@@ -1,4 +1,3 @@
-<?php /** P2 : réservation d'un trajet actif. */ ?>
 <h2 class="section-titre">Sélectionnez un trajet actif</h2>
 <?php if (empty($trajetsActifs)): ?>
     <div class="alert info">Aucun trajet actif n'est disponible à la réservation pour le moment.</div>

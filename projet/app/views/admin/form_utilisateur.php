@@ -1,4 +1,3 @@
-<?php /** A2 / A3 : formulaire d'ajout d'un conducteur ou d'un passager. */ ?>
 <div class="card">
     <h2><?= htmlspecialchars($titre) ?></h2>
     <form method="post" action="<?= BASE_URL ?>index.php?action=<?= htmlspecialchars($action) ?>">

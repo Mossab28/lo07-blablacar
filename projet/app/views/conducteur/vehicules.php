@@ -1,4 +1,3 @@
-<?php /** C1 : véhicules du conducteur connecté. */ ?>
 <h2 class="section-titre">Liste des véhicules du conducteur <?= htmlspecialchars($conducteur['prenom'] . ' ' . $conducteur['nom']) ?></h2>
 <?php if (empty($vehicules)): ?>
     <div class="alert info">Vous n'avez aucun véhicule enregistré.</div>

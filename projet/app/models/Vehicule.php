@@ -1,14 +1,6 @@
 <?php
-/**
- * Modèle Vehicule.
- * Table : vehicule (id, marque, modele, annee, immatriculation, proprietaire_id)
- */
 class Vehicule extends Model
 {
-    /**
-     * A4 : tous les véhicules avec le nom du propriétaire reconstruit
-     * (prenom + nom) — les clés primaires ne sont pas destinées à l'affichage.
-     */
     public function tousAvecProprietaire(): array
     {
         return $this->fetchAll(
@@ -20,7 +12,6 @@ class Vehicule extends Model
         );
     }
 
-    /** C1 : véhicules appartenant à un conducteur donné. */
     public function parProprietaire(int $proprietaireId): array
     {
         return $this->fetchAll(
@@ -34,7 +25,6 @@ class Vehicule extends Model
         return $this->fetchOne('SELECT * FROM vehicule WHERE id = ?', [$id]);
     }
 
-    /** A5 : ajoute un véhicule. Retourne le nouvel id. */
     public function ajouter(string $marque, string $modele, int $annee, string $immatriculation, int $proprietaireId): int
     {
         $id = $this->nextId('vehicule');

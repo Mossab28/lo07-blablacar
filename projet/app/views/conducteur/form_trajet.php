@@ -1,4 +1,3 @@
-<?php /** C3 : création d'un nouveau trajet. */ ?>
 <div class="card">
     <h2>Création d'un nouveau trajet</h2>
     <?php if (empty($vehicules)): ?>

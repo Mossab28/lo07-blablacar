@@ -1,7 +1,4 @@
 <?php
-/**
- * Contrôleur de la page d'accueil.
- */
 class HomeController extends Controller
 {
     public function index(): void

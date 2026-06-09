@@ -1,17 +1,11 @@
 <?php
-/**
- * Contrôleur Administrateur (A1..A7).
- * Gère les utilisateurs, véhicules et villes.
- */
 class AdminController extends Controller
 {
-    /** Toutes les actions admin exigent le rôle administrateur. */
     private function garde(): array
     {
         return $this->exigerRole(['administrateur']);
     }
 
-    /** A1 : liste de tous les utilisateurs. */
     public function listeUtilisateurs(): void
     {
         $this->garde();
@@ -22,7 +16,6 @@ class AdminController extends Controller
         ], 'Liste des utilisateurs');
     }
 
-    /** A2 : formulaire de création d'un conducteur. */
     public function formConducteur(): void
     {
         $this->garde();
@@ -33,14 +26,12 @@ class AdminController extends Controller
         ], 'Ajout conducteur');
     }
 
-    /** A2 : traitement de l'ajout d'un conducteur. */
     public function ajouterConducteur(): void
     {
         $this->garde();
         $this->traiterAjoutUtilisateur('conducteur', 'admin_form_conducteur');
     }
 
-    /** A3 : formulaire de création d'un passager. */
     public function formPassager(): void
     {
         $this->garde();
@@ -51,14 +42,12 @@ class AdminController extends Controller
         ], 'Ajout passager');
     }
 
-    /** A3 : traitement de l'ajout d'un passager. */
     public function ajouterPassager(): void
     {
         $this->garde();
         $this->traiterAjoutUtilisateur('passager', 'admin_form_passager');
     }
 
-    /** Logique commune A2/A3 : valide et insère un utilisateur. */
     private function traiterAjoutUtilisateur(string $role, string $retour): void
     {
         $nom    = trim($_POST['nom'] ?? '');
@@ -82,7 +71,6 @@ class AdminController extends Controller
         ], 'Résultat');
     }
 
-    /** A4 : liste des véhicules (propriétaire reconstruit, pas de clés primaires). */
     public function listeVehicules(): void
     {
         $this->garde();
@@ -92,18 +80,16 @@ class AdminController extends Controller
         ], 'Liste des véhicules');
     }
 
-    /** A5 : formulaire de création d'un véhicule. */
     public function formVehicule(): void
     {
         $this->garde();
-        // Le propriétaire est choisi parmi les conducteurs.
+
         $conducteurs = (new Utilisateur())->parRole('conducteur');
         $this->render('admin/form_vehicule', [
             'conducteurs' => $conducteurs,
         ], 'Ajout véhicule');
     }
 
-    /** A5 : traitement de l'ajout d'un véhicule. */
     public function ajouterVehicule(): void
     {
         $this->garde();
@@ -131,7 +117,6 @@ class AdminController extends Controller
         ], 'Résultat');
     }
 
-    /** A6 : liste des villes. */
     public function listeVilles(): void
     {
         $this->garde();
@@ -142,14 +127,12 @@ class AdminController extends Controller
         ], 'Liste des villes');
     }
 
-    /** A7 : formulaire d'ajout d'une ville. */
     public function formVille(): void
     {
         $this->garde();
         $this->render('admin/form_ville', [], 'Ajout ville');
     }
 
-    /** A7 : traitement de l'ajout d'une ville. */
     public function ajouterVille(): void
     {
         $this->garde();

@@ -1,8 +1,4 @@
 <?php
-/**
- * En-tête HTML commun à toutes les pages.
- * $titre est fourni par le contrôleur via render().
- */
 $titrePage = isset($titre) && $titre !== '' ? $titre . ' - ' : '';
 ?>
 <!DOCTYPE html>

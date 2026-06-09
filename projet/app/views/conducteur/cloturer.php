@@ -1,4 +1,3 @@
-<?php /** C5 : clôturer un trajet actif. */ ?>
 <h2 class="section-titre">Clôturer l'un de mes trajets actifs</h2>
 <?php if (!empty($flash)): ?><div class="alert info"><?= htmlspecialchars($flash) ?></div><?php endif; ?>
 

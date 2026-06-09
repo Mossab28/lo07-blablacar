@@ -1,4 +1,3 @@
-<?php /** C4 : passagers de l'un des trajets actifs du conducteur. */ ?>
 <h2 class="section-titre">Sélectionnez l'un de mes trajets actifs</h2>
 
 <?php if (empty($trajetsActifs)): ?>

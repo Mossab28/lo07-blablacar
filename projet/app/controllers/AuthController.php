@@ -1,10 +1,6 @@
 <?php
-/**
- * Contrôleur d'authentification (F1 Login, F2 Déconnexion).
- */
 class AuthController extends Controller
 {
-    /** F1 : affiche le formulaire de connexion. */
     public function formulaire(): void
     {
         $this->render('auth/login', [
@@ -12,7 +8,6 @@ class AuthController extends Controller
         ], 'Connexion');
     }
 
-    /** F1 : traite le formulaire et ouvre la session si succès. */
     public function authentifier(): void
     {
         $login    = trim($_POST['login'] ?? '');
@@ -26,10 +21,8 @@ class AuthController extends Controller
             $this->redirect('login');
         }
 
-        // Session ouverte : on mémorise l'id de l'utilisateur connecté.
         $_SESSION['login_id'] = (int) $user['id'];
 
-        // Redirection vers le menu correspondant au rôle.
         switch ($user['role']) {
             case 'administrateur':
                 $this->redirect('admin_utilisateurs');
@@ -45,7 +38,6 @@ class AuthController extends Controller
         }
     }
 
-    /** F2 : déconnexion — réinitialise login_id. */
     public function deconnexion(): void
     {
         $_SESSION['login_id'] = -1;

@@ -1,4 +1,3 @@
-<?php /** A4 : liste des véhicules — sans clés primaires, propriétaire = prénom + nom. */ ?>
 <h2 class="section-titre">Liste des véhicules</h2>
 <table class="data">
     <thead>

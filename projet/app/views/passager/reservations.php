@@ -1,4 +1,3 @@
-<?php /** P1 : réservations du passager connecté. */ ?>
 <h2 class="section-titre">Liste de mes réservations</h2>
 <?php if (!empty($flash)): ?><div class="alert ok"><?= htmlspecialchars($flash) ?></div><?php endif; ?>
 <?php if (empty($reservations)): ?>

@@ -1,29 +1,12 @@
 <?php
-/**
- * Configuration globale de l'application BlaBlaCar 2026
- * Projet LO07 - Marc LEMERCIER
- *
- * Centralise les paramètres modifiables : noms des étudiants,
- * identifiants de connexion à la base de données, et chemins.
- */
-
-// --- Noms des deux étudiants (affichés dans la barre de menu) ---
 define('ETUDIANT_1', "Moss'Ab Mirande-Ney");
 define('ETUDIANT_2', 'Pierre Bheidi');
-// Chaîne prête à l'emploi : « X et Y »
+
 define('NOMS_ETUDIANTS', ETUDIANT_1 . ' et ' . ETUDIANT_2);
 
-// --- Paramètres de connexion à la base MySQL ---
-// Le code détecte automatiquement s'il tourne sur dev-isi.utt.fr ou en local,
-// et choisit les bons identifiants : aucune modification à faire avant de
-// déposer le projet sur le serveur de l'UTT.
 $surDevIsi = isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'dev-isi.utt.fr') !== false;
 
 if ($surDevIsi) {
-    // ===== Serveur dev-isi.utt.fr =====================================
-    // Les identifiants réels sont lus depuis config/secrets.php, un fichier
-    // NON versionné (.gitignore) pour ne jamais exposer le mot de passe sur
-    // GitHub. Voir config/secrets.example.php pour le modèle à copier.
     define('DB_HOST', 'localhost');
     define('DB_PORT', '3306');
 
@@ -36,7 +19,6 @@ if ($surDevIsi) {
     define('DB_USER', $s['user']);
     define('DB_PASS', $s['pass']);
 } else {
-    // ===== Développement local (XAMPP / MAMP / php -S) ================
     define('DB_HOST', '127.0.0.1');
     define('DB_PORT', '3306');
     define('DB_NAME', 'blablacar2026');
@@ -45,16 +27,12 @@ if ($surDevIsi) {
 }
 define('DB_CHARSET', 'utf8mb4');
 
-// --- URL de base de l'application ---
-// Détection automatique du répertoire dans lequel tourne index.php.
 $scriptDir = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '')), '/');
 define('BASE_URL', $scriptDir === '' ? '/' : $scriptDir . '/');
 
-// --- Chemins physiques ---
 define('ROOT_PATH', dirname(__DIR__));
 define('APP_PATH', ROOT_PATH . '/app');
 define('VIEWS_PATH', APP_PATH . '/views');
 
-// Affichage des erreurs en développement (à désactiver en production).
 error_reporting(E_ALL);
 ini_set('display_errors', '1');

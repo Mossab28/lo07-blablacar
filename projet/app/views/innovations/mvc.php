@@ -1,4 +1,3 @@
-<?php /** Innovation MVC : explication des améliorations d'architecture. */ ?>
 <h2 class="section-titre">Innovation MVC — Améliorations de l'architecture</h2>
 
 <p>

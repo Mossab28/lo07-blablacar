@@ -1,4 +1,3 @@
-<?php /** F1 : formulaire de connexion. */ ?>
 <div class="card">
     <h2>Connexion</h2>
     <?php if (!empty($flash)): ?>

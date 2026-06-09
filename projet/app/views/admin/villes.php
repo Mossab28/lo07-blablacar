@@ -1,4 +1,3 @@
-<?php /** A6 : liste des villes. */ ?>
 <h2 class="section-titre">Liste des villes</h2>
 <?php if (!empty($flash)): ?><div class="alert info"><?= htmlspecialchars($flash) ?></div><?php endif; ?>
 <table class="data">

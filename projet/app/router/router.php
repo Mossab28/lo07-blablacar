@@ -1,60 +1,43 @@
 <?php
-/**
- * Routeur : table de correspondance action -> (contrôleur, méthode).
- *
- * Le point d'entrée index.php appelle Router::dispatch() avec la valeur
- * du paramètre 'action'. Chaque action est associée à une méthode d'un
- * contrôleur. On reste volontairement explicite (pas de magie) pour que
- * la liste des fonctionnalités du cahier des charges soit lisible d'un coup.
- */
 class Router
 {
-    /**
-     * Carte des routes. Clé = action ; valeur = [Contrôleur, méthode].
-     */
     private static array $routes = [
-        // --- Accueil / connexion ---
+
         'accueil'            => ['HomeController', 'index'],
         'login'              => ['AuthController', 'formulaire'],
         'authentifier'       => ['AuthController', 'authentifier'],
         'logout'             => ['AuthController', 'deconnexion'],
 
-        // --- Administrateur (A1..A7) ---
-        'admin_utilisateurs'      => ['AdminController', 'listeUtilisateurs'],     // A1
-        'admin_form_conducteur'   => ['AdminController', 'formConducteur'],        // A2
-        'admin_ajout_conducteur'  => ['AdminController', 'ajouterConducteur'],     // A2
-        'admin_form_passager'     => ['AdminController', 'formPassager'],          // A3
-        'admin_ajout_passager'    => ['AdminController', 'ajouterPassager'],       // A3
-        'admin_vehicules'         => ['AdminController', 'listeVehicules'],        // A4
-        'admin_form_vehicule'     => ['AdminController', 'formVehicule'],          // A5
-        'admin_ajout_vehicule'    => ['AdminController', 'ajouterVehicule'],       // A5
-        'admin_villes'            => ['AdminController', 'listeVilles'],           // A6
-        'admin_form_ville'        => ['AdminController', 'formVille'],             // A7
-        'admin_ajout_ville'       => ['AdminController', 'ajouterVille'],          // A7
+        'admin_utilisateurs'      => ['AdminController', 'listeUtilisateurs'],
+        'admin_form_conducteur'   => ['AdminController', 'formConducteur'],
+        'admin_ajout_conducteur'  => ['AdminController', 'ajouterConducteur'],
+        'admin_form_passager'     => ['AdminController', 'formPassager'],
+        'admin_ajout_passager'    => ['AdminController', 'ajouterPassager'],
+        'admin_vehicules'         => ['AdminController', 'listeVehicules'],
+        'admin_form_vehicule'     => ['AdminController', 'formVehicule'],
+        'admin_ajout_vehicule'    => ['AdminController', 'ajouterVehicule'],
+        'admin_villes'            => ['AdminController', 'listeVilles'],
+        'admin_form_ville'        => ['AdminController', 'formVille'],
+        'admin_ajout_ville'       => ['AdminController', 'ajouterVille'],
 
-        // --- Conducteur (C1..C5) ---
-        'cond_vehicules'        => ['ConducteurController', 'mesVehicules'],       // C1
-        'cond_trajets'          => ['ConducteurController', 'mesTrajets'],         // C2
-        'cond_form_trajet'      => ['ConducteurController', 'formTrajet'],         // C3
-        'cond_ajout_trajet'     => ['ConducteurController', 'ajouterTrajet'],      // C3
-        'cond_passagers'        => ['ConducteurController', 'passagersTrajet'],    // C4
-        'cond_cloturer'         => ['ConducteurController', 'cloturerTrajet'],     // C5
+        'cond_vehicules'        => ['ConducteurController', 'mesVehicules'],
+        'cond_trajets'          => ['ConducteurController', 'mesTrajets'],
+        'cond_form_trajet'      => ['ConducteurController', 'formTrajet'],
+        'cond_ajout_trajet'     => ['ConducteurController', 'ajouterTrajet'],
+        'cond_passagers'        => ['ConducteurController', 'passagersTrajet'],
+        'cond_cloturer'         => ['ConducteurController', 'cloturerTrajet'],
 
-        // --- Passager (P1, P2) ---
-        'pass_reservations'     => ['PassagerController', 'mesReservations'],      // P1
-        'pass_form_reserver'    => ['PassagerController', 'formReserver'],         // P2
-        'pass_reserver'         => ['PassagerController', 'reserver'],             // P2
+        'pass_reservations'     => ['PassagerController', 'mesReservations'],
+        'pass_form_reserver'    => ['PassagerController', 'formReserver'],
+        'pass_reserver'         => ['PassagerController', 'reserver'],
 
-        // --- Examinateur (E1, E2) ---
-        'exam_superglobales'    => ['ExaminateurController', 'superGlobales'],     // E1
-        'exam_reservations'     => ['ExaminateurController', 'reservationsAleatoires'], // E2
+        'exam_superglobales'    => ['ExaminateurController', 'superGlobales'],
+        'exam_reservations'     => ['ExaminateurController', 'reservationsAleatoires'],
 
-        // --- Innovations ---
         'innov_data'            => ['InnovationController', 'data'],
         'innov_mvc'             => ['InnovationController', 'mvc'],
     ];
 
-    /** Aiguille la requête vers le bon contrôleur, ou l'accueil par défaut. */
     public static function dispatch(string $action): void
     {
         if (!isset(self::$routes[$action])) {

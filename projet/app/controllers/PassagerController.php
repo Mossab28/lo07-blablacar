@@ -1,7 +1,4 @@
 <?php
-/**
- * Contrôleur Passager (P1, P2).
- */
 class PassagerController extends Controller
 {
     private function garde(): array
@@ -9,7 +6,6 @@ class PassagerController extends Controller
         return $this->exigerRole(['passager']);
     }
 
-    /** P1 : liste des réservations du passager connecté. */
     public function mesReservations(): void
     {
         $user = $this->garde();
@@ -20,7 +16,6 @@ class PassagerController extends Controller
         ], 'Mes réservations');
     }
 
-    /** P2 : formulaire de réservation (liste des trajets actifs). */
     public function formReserver(): void
     {
         $this->garde();
@@ -30,7 +25,6 @@ class PassagerController extends Controller
         ], 'Réserver un trajet actif');
     }
 
-    /** P2 : traitement de la réservation d'un trajet actif. */
     public function reserver(): void
     {
         $user = $this->garde();

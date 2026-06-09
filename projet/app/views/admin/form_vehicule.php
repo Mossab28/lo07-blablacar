@@ -1,4 +1,3 @@
-<?php /** A5 : formulaire d'ajout d'un véhicule. */ ?>
 <div class="card">
     <h2>Formulaire de création d'un nouveau véhicule</h2>
     <form method="post" action="<?= BASE_URL ?>index.php?action=admin_ajout_vehicule">

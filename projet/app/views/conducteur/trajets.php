@@ -1,4 +1,3 @@
-<?php /** C2 : tous les trajets (actifs + passifs) du conducteur. */ ?>
 <h2 class="section-titre">Liste de tous les trajets du conducteur <?= htmlspecialchars($conducteur['prenom'] . ' ' . $conducteur['nom']) ?></h2>
 <?php if (!empty($flash)): ?><div class="alert ok"><?= htmlspecialchars($flash) ?></div><?php endif; ?>
 <?php if (empty($trajets)): ?>

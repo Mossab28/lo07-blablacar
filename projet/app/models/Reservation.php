@@ -1,14 +1,6 @@
 <?php
-/**
- * Modèle Reservation.
- * Table : reservation (id, trajet_id, passager_id)
- * Un passager peut réserver plusieurs fois une place sur un même trajet.
- */
 class Reservation extends Model
 {
-    /**
-     * P1 : réservations d'un passager, avec les détails du trajet réservé.
-     */
     public function parPassager(int $passagerId): array
     {
         return $this->fetchAll(
@@ -30,10 +22,6 @@ class Reservation extends Model
         );
     }
 
-    /**
-     * C4 : passagers ayant réservé un trajet donné (avec doublons possibles,
-     * un même passager pouvant réserver plusieurs places).
-     */
     public function passagersDuTrajet(int $trajetId): array
     {
         return $this->fetchAll(
@@ -48,13 +36,11 @@ class Reservation extends Model
         );
     }
 
-    /** Lignes brutes d'un trajet (pour la facturation lors de la clôture C5). */
     public function brutesParTrajet(int $trajetId): array
     {
         return $this->fetchAll('SELECT * FROM reservation WHERE trajet_id = ?', [$trajetId]);
     }
 
-    /** P2 / E2 : crée une réservation. Retourne le nouvel id. */
     public function ajouter(int $trajetId, int $passagerId): int
     {
         $id = $this->nextId('reservation');

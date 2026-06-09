@@ -1,16 +1,6 @@
 <?php
-/**
- * Modèle Trajet.
- * Table : trajet (id, ville_depart, ville_arrivee, conducteur_id, vehicule_id,
- *                 prix, date_depart, heure_depart, statut)
- */
 class Trajet extends Model
 {
-    /**
-     * Sélection enrichie : noms des villes de départ/arrivée, conducteur,
-     * véhicule. Utilisée par les listes côté conducteur et passager.
-     * La clause WHERE est passée par l'appelant (déjà paramétrée).
-     */
     private function selectEnrichi(string $where = '', array $params = [], string $orderBy = 't.date_depart, t.heure_depart'): array
     {
         $sql =
@@ -29,19 +19,16 @@ class Trajet extends Model
         return $this->fetchAll($sql, $params);
     }
 
-    /** C2 : tous les trajets (actifs et passifs) d'un conducteur. */
     public function parConducteur(int $conducteurId): array
     {
         return $this->selectEnrichi('WHERE t.conducteur_id = ?', [$conducteurId]);
     }
 
-    /** C4 / C5 : trajets ACTIFS d'un conducteur. */
     public function actifsParConducteur(int $conducteurId): array
     {
         return $this->selectEnrichi("WHERE t.conducteur_id = ? AND t.statut = 'actif'", [$conducteurId]);
     }
 
-    /** P2 : tous les trajets actifs disponibles à la réservation. */
     public function tousActifs(): array
     {
         return $this->selectEnrichi("WHERE t.statut = 'actif'");
@@ -53,13 +40,11 @@ class Trajet extends Model
         return $rows[0] ?? null;
     }
 
-    /** Version brute (sans jointures) pour la logique métier. */
     public function brutParId(int $id): ?array
     {
         return $this->fetchOne('SELECT * FROM trajet WHERE id = ?', [$id]);
     }
 
-    /** C3 : crée un trajet. Retourne le nouvel id. */
     public function ajouter(
         int $villeDepart, int $villeArrivee, int $conducteurId, int $vehiculeId,
         float $prix, string $dateDepart, string $heureDepart
@@ -75,7 +60,6 @@ class Trajet extends Model
         return $id;
     }
 
-    /** C5 : passe un trajet en statut 'passif'. */
     public function cloturer(int $id): bool
     {
         return $this->execute("UPDATE trajet SET statut = 'passif' WHERE id = ?", [$id]);
